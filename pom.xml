@@ -32,6 +32,53 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
             </plugin>
+
+            <!--
+              Власний плагін №1: збирає весь Java-код у один файл.
+              Goal `aggregate` прив'язаний до фази package — викликається
+              автоматично при `mvn package`. Можна запустити явно:
+                  mvn source-aggregator:aggregate
+            -->
+            <plugin>
+                <groupId>practice2.litvinchuk</groupId>
+                <artifactId>source-aggregator-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <includeTests>true</includeTests>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aggregate-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+              Власний плагін №2: генерує Markdown-звіт зі статистикою коду.
+              Goal `report` прив'язаний до фази verify. Запуск:
+                  mvn code-stats:report
+            -->
+            <plugin>
+                <groupId>practice2.litvinchuk</groupId>
+                <artifactId>code-stats-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <topN>5</topN>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>code-stats-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
