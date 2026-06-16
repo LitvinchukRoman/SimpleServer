@@ -1,0 +1,61 @@
+name: Build Verify (reusable)
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint Test Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Install local Maven plugins
+        run: |
+          mvn -B -ntp -f plugins/source-aggregator-maven-plugin/pom.xml install
+          mvn -B -ntp -f plugins/code-stats-maven-plugin/pom.xml install
+
+      - name: Static analysis (Checkstyle)
+        run: mvn -B -ntp checkstyle:check
+
+      - name: Run tests (JUnit 6)
+        run: mvn -B -ntp test
+
+      - name: Build WAR
+        run: mvn -B -ntp package -DskipTests
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Build summary"
+            echo ""
+            echo "| Stage | Result |"
+            echo "|-------|--------|"
+            echo "| Checkstyle | done |"
+            echo "| Tests (JUnit 6) | see below |"
+            echo "| Package (WAR) | done |"
+            echo ""
+            echo '```'
+            cat target/surefire-reports/*.txt 2>/dev/null | grep -E "Tests run" || echo "no surefire report"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleServer-war
+          path: target/SimpleServer.war
+          if-no-files-found: error
+          retention-days: 14

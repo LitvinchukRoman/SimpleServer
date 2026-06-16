@@ -1,0 +1,17 @@
+name: CI Pull Request
+
+on:
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & Verify
+    uses: ./.github/workflows/reusable-build.yml
