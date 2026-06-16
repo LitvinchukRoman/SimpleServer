@@ -4,6 +4,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import practice2.util.ByteFormatter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
@@ -38,9 +39,9 @@ public class SystemInfoServlet extends HttpServlet {
         row(out, "Architecture", osArch);
         row(out, "CPU Cores", String.valueOf(cpuCores));
         row(out, "System Load Average", String.format("%.2f", loadAvg));
-        row(out, "JVM Total Memory", formatBytes(totalMemory));
-        row(out, "JVM Free Memory", formatBytes(freeMemory));
-        row(out, "JVM Max Memory", formatBytes(maxMemory));
+        row(out, "JVM Total Memory", ByteFormatter.formatBytes(totalMemory));
+        row(out, "JVM Free Memory", ByteFormatter.formatBytes(freeMemory));
+        row(out, "JVM Max Memory", ByteFormatter.formatBytes(maxMemory));
         row(out, "Java Version", javaVersion);
         row(out, "User", userName);
         out.println("</table>");
@@ -49,9 +50,5 @@ public class SystemInfoServlet extends HttpServlet {
 
     private void row(PrintWriter out, String label, String value) {
         out.println("<tr><td><b>" + label + "</b></td><td>" + value + "</td></tr>");
-    }
-
-    private String formatBytes(long bytes) {
-        return String.format("%d MB", bytes / (1024 * 1024));
     }
 }
